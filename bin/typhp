@@ -6,7 +6,11 @@ declare(strict_types=1);
 use Seferov\Typhp\Command\AnalyseCommand;
 use Symfony\Component\Console\Application;
 
-require_once __DIR__.'/../vendor/autoload.php';
+if (file_exists(__DIR__.'/../../../autoload.php')) {
+    require __DIR__.'/../../../autoload.php';
+} else {
+    require_once __DIR__.'/../vendor/autoload.php';
+}
 
 $application = new Application('Typed PHP');
 $analyseCommand = new AnalyseCommand();
