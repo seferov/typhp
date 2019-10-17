@@ -32,6 +32,8 @@ To install globally
 composer global require seferov/typhp
 `
 
+Not to have possible dependency conflict, you can download PHAR file from the [latest Github release](https://github.com/seferov/typhp/releases/latest)
+
 ## Usage
 
 `
@@ -55,6 +57,6 @@ Example output
  
 - [ ] Check `declare(strict_types=1)` by config
 
-- [ ] Phar file
+- [x] Phar file
 
 - [ ] Github Actions
