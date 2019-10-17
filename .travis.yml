@@ -1,0 +1,48 @@
+language: php
+
+php:
+  - 7.1
+  - 7.2
+  - 7.3
+  - 7.4snapshot
+
+stages:
+  - test
+  - typhp
+
+env:
+  matrix:
+    - DEPS="high"
+    - DEPS="low"
+  global:
+    - COMPOSER_MEMORY_LIMIT=-1
+    - DEFAULT_COMPOSER_FLAGS="--no-interaction --no-suggest --prefer-source"
+
+cache:
+  directories:
+    - ./vendor
+
+before_install:
+  - export INI_DIR=~/.phpenv/versions/$(phpenv version-name)/etc/conf.d
+  - echo memory_limit = 1G >> $INI_DIR/travis.ini
+  - if [[ -f $INI_DIR/xdebug.ini ]]; then phpenv config-rm xdebug.ini; fi
+  - composer clear-cache
+
+install:
+  - if [[ "$DEPS" = 'high' ]]; then travis_retry composer $DEFAULT_COMPOSER_FLAGS update; fi
+  - if [[ "$DEPS" = 'low' ]]; then travis_retry composer $DEFAULT_COMPOSER_FLAGS --prefer-lowest --prefer-stable update; fi
+
+script:
+  - vendor/bin/phpunit
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: 7.4snapshot
+
+jobs:
+  include:
+    - stage: typhp
+      php: 7.3
+      script:
+        - bin/typhp

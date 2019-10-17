@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Seferov\Typhp\Command\AnalyseCommand;
+use Symfony\Component\Console\Application;
+
+require_once __DIR__.'/../vendor/autoload.php';
+
+$application = new Application('Typed PHP');
+$analyseCommand = new AnalyseCommand();
+$application->add($analyseCommand);
+$application->setDefaultCommand($analyseCommand->getName());
+$application->run();
