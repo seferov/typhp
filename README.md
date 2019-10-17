@@ -1,5 +1,7 @@
 ## TYPHP
 
+[![Build Status](https://travis-ci.com/seferov/typhp.svg?branch=master)](https://travis-ci.com/seferov/typhp)
+
 `typhp` is a simple tool checks whether type hint for arguments or return type declared.
 Unlike static analysis tools, it doesn't point out possible errors and issues
 but suggests typehint everything possible.
@@ -60,3 +62,8 @@ Example output
 - [x] Phar file
 
 - [ ] Github Actions
+
+
+## Issues
+
+Since it is a beta release, there might be some issues. If you found one, please submit it [here](https://github.com/seferov/typhp/issues/new)
