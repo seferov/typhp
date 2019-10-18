@@ -69,6 +69,11 @@ class Analyser
 
     private function analyseFunctionLike(Node\FunctionLike $functionLike): void
     {
+        if (!$functionLike instanceof Node\Stmt\ClassMethod && !$functionLike instanceof Node\Stmt\Function_) {
+            // todo: support closures and arrow functions
+            return;
+        }
+
         $name = $functionLike->name;
 
         $docBlock = null;

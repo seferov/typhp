@@ -35,7 +35,7 @@ class AnalyseCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output->writeln(sprintf('<info>Typhp v%s</info>', PrettyVersions::getVersion('seferov/typhp')->getPrettyVersion()));
+        $output->writeln(sprintf('<info>Typhp %s</info>', PrettyVersions::getVersion('seferov/typhp')->getPrettyVersion()));
 
         $stopwatch = new Stopwatch();
         $stopwatch->start($this->getName());
