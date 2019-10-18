@@ -30,12 +30,14 @@ class DocBlockAnalyser
 
     public function isParamSuppressedByDocBlock(string $paramName, DocBlock $docBlock): bool
     {
-        foreach ($docBlock->getTagsByName('param') as $docBlockParamTag) {
-            if ($docBlockParamTag->getVariableName() !== $paramName) {
+        /** @var DocBlock\Tags\Param[] $paramTags */
+        $paramTags = $docBlock->getTagsByName('param');
+        foreach ($paramTags as $paramTag) {
+            if ($paramTag->getVariableName() !== $paramName) {
                 continue;
             }
 
-            return $this->isTypeSuppressed($docBlockParamTag->getType());
+            return $this->isTypeSuppressed($paramTag->getType());
         }
 
         return false;
