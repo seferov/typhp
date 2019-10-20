@@ -10,12 +10,13 @@ but suggests typehint everything possible.
 - Who works projects using PHP 7.1 and higher. 
 - Who doesn't want to point out missing type hint and return type declarations in code review process
 by using it as part of CI pipeline.
-- Who love strict typing
+- Who love strict typing and defensive programming.
 
 #### Features
 
 - Respects phpdoc; there are some rare cases mixed or compound types are needed.
 If such cases documented in phpdoc, `typhp` doesn't complain. For example: `@return array|bool`, `@param mixed $foo`, etc.
+- Takes [magic methods](https://www.php.net/manual/en/language.oop5.magic.php) into account.
 - Analyses based on configuration. Include/exclude files and directories to be analysed.
 For optional config file, see the [current project example](https://github.com/seferov/typhp/blob/master/.typhp.yml)
 - Does NOT modifies your code

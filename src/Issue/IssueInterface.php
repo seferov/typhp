@@ -10,5 +10,5 @@ interface IssueInterface
 
     public function getIssue(): string;
 
-    public function getIssueCode(): string;
+    public function getIssueCompact(): string;
 }

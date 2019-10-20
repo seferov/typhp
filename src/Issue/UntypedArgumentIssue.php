@@ -19,18 +19,13 @@ class UntypedArgumentIssue extends AbstractIssue
         return $issue;
     }
 
-    public function getIssueCode(): string
+    public function getIssueCompact(): string
     {
-        return 'untyped-argument';
+        return implode(';', [$this->getLine(), $this->getName(), 'untyped-argument', $this->argumentName]);
     }
 
     public function getIssue(): string
     {
         return sprintf('Missing type declaration for argument "%s"', $this->argumentName);
-    }
-
-    public function getArgumentName(): string
-    {
-        return $this->argumentName;
     }
 }

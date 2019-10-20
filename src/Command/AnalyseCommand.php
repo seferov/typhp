@@ -86,7 +86,7 @@ class AnalyseCommand extends Command
                 case 'compact':
                     /** @var IssueInterface $issue */
                     foreach ($issueCollection as $issue) {
-                        $output->writeln(implode(';', [$issue->getLine(), $issue->getName(), $issue->getIssueCode()]));
+                        $output->writeln($issue->getIssueCompact());
                     }
                     break;
                 default:

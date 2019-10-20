@@ -13,9 +13,9 @@ class UntypedReturnIssue extends AbstractIssue
         return $issue;
     }
 
-    public function getIssueCode(): string
+    public function getIssueCompact(): string
     {
-        return 'untyped-return';
+        return implode(';', [$this->getLine(), $this->getName(), 'untyped-return']);
     }
 
     public function getIssue(): string
