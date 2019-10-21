@@ -23,24 +23,43 @@ For optional config file, see the [current project example](https://github.com/s
 
 ## Installation
 
-Install via composer:
 
-`
-composer require seferov/typhp
-`
+There are several ways to install `typhp`. The recommended one is to use
+phar distribution. Thus you won't have possible dependency conflict.
 
-To install globally
+#### Phar
 
-`
+Direct download from the [latest Github release](https://github.com/seferov/typhp/releases/latest)
+
+```bash
+wget https://github.com/seferov/typhp/releases/download/v0.1.2/typhp.phar -O typhp
+chmod +x typhp
+```
+
+You can install phar distribution by [Phive](https://phar.io/)
+
+```bash
+phive install seferov/typhp --global
+```
+
+#### Composer
+
+`typhp` can be installed by [composer](https://getcomposer.org/) globally.
+
+```bash
 composer global require seferov/typhp
-`
+```
 
-Not to have possible dependency conflict, you can download PHAR file from the [latest Github release](https://github.com/seferov/typhp/releases/latest)
+If you prefer, you can it add dev dependency to your project.
+
+```bash
+composer require require seferov/typhp --dev
+```
 
 ## Usage
 
 `
-vendor/bin/typhp analyse path
+typhp analyse path
 `
 
 If config file (`.typhp.yml`) is present in project root, it can be run
@@ -61,6 +80,8 @@ Example output
 - [ ] Check `declare(strict_types=1)` by config
 
 - [x] Phar file
+
+- [ ] Auto deploy phar file to release assets & add self-update command
 
 - [ ] Github Actions
 
