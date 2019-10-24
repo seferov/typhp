@@ -53,3 +53,6 @@ jobs:
         - chmod +x phpstan.phar
       script:
         - ./phpstan.phar analyse src --level=5
+
+notifications:
+  email: false

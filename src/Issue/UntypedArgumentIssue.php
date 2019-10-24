@@ -21,7 +21,7 @@ class UntypedArgumentIssue extends AbstractIssue
 
     public function getIssueCompact(): string
     {
-        return implode(';', [$this->getLine(), $this->getName(), 'untyped-argument', $this->argumentName]);
+        return implode(';', [$this->line, $this->name, 'untyped-argument', $this->argumentName]);
     }
 
     public function getIssue(): string
