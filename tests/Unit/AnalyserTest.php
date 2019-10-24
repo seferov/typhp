@@ -9,7 +9,7 @@ use Seferov\Typhp\IssueCollection;
 
 class AnalyserTest extends TestCase
 {
-    public function testAnalyse()
+    public function testAnalyse(): void
     {
         $code = '<?php
             function foo($bar) {
