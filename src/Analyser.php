@@ -62,6 +62,14 @@ class Analyser
     {
         if ($node instanceof Node\FunctionLike) {
             $this->analyseFunctionLike($node);
+        } elseif ($node instanceof Node\Stmt\Expression) {
+            $this->analyseNode($node->expr);
+        } elseif ($node instanceof Node\Expr\FuncCall || $node instanceof Node\Expr\MethodCall) {
+            foreach ($node->args as $arg) {
+                $this->analyseNode($arg->value);
+            }
+        } elseif ($node instanceof Node\Expr\Assign) {
+            $this->analyseNode($node->expr);
         }
 
         if (isset($node->stmts)) {
@@ -73,12 +81,16 @@ class Analyser
 
     private function analyseFunctionLike(Node\FunctionLike $functionLike): void
     {
-        if (!$functionLike instanceof Node\Stmt\ClassMethod && !$functionLike instanceof Node\Stmt\Function_) {
-            // todo: support closures and arrow functions
+        if ($functionLike instanceof Node\Stmt\ClassMethod || $functionLike instanceof Node\Stmt\Function_) {
+            $name = $functionLike->name->name;
+            $line = $functionLike->name->getStartLine();
+        } elseif ($functionLike instanceof Node\Expr\Closure) {
+            $name = 'n/a (closure)';
+            $line = $functionLike->getStartLine();
+        } else {
+            // todo: support arrow functions (PHP 7.4)
             return;
         }
-
-        $name = $functionLike->name;
 
         $docBlock = null;
         if ($functionLike->getDocComment()) {
@@ -93,19 +105,19 @@ class Analyser
             return;
         }
 
-        if ($functionLike instanceof Node\Stmt\ClassMethod && in_array($name->name, ['__construct', '__destruct', '__call', '__callStatic', '__get', '__set', '__isset', '__unset', '__sleep', '__wakeup', '__toString', '__invoke', '__set_state', '__clone', '__debugInfo'])) {
+        if ($functionLike instanceof Node\Stmt\ClassMethod && in_array($name, ['__construct', '__destruct', '__call', '__callStatic', '__get', '__set', '__isset', '__unset', '__sleep', '__wakeup', '__toString', '__invoke', '__set_state', '__clone', '__debugInfo'])) {
             $this->analyseSpecialMagicMethods($functionLike, $docBlock);
             return;
         }
 
-        $this->analyseParams($functionLike->getParams(), $name, $docBlock);
-        $this->analyseReturn($functionLike->getReturnType(), $name, $docBlock);
+        $this->analyseParams($functionLike->getParams(), $name, $line, $docBlock);
+        $this->analyseReturn($functionLike->getReturnType(), $name, $line, $docBlock);
     }
 
     /**
      * @param Node\Param[] $params
      */
-    private function analyseParams(array $params, Node\Identifier $name, ?DocBlock $docBlock): void
+    private function analyseParams(array $params, string $name, int $line, ?DocBlock $docBlock): void
     {
         foreach ($params as $param) {
             if (null !== $param->type) {
@@ -116,14 +128,14 @@ class Analyser
                 continue;
             }
 
-            $this->issueCollection->add(UntypedArgumentIssue::create($name->name, $name->getStartLine(), $param->var->name));
+            $this->issueCollection->add(UntypedArgumentIssue::create($name, $line, $param->var->name));
         }
     }
 
     /**
      * @param null|Identifier|Node\Name|Node\NullableType $returnType
      */
-    private function analyseReturn($returnType, Node\Identifier $name, ?DocBlock $docBlock): void
+    private function analyseReturn($returnType, string $name, int $line, ?DocBlock $docBlock): void
     {
         if (null !== $returnType) {
             return;
@@ -133,92 +145,91 @@ class Analyser
             return;
         }
 
-        $this->issueCollection->add(UntypedReturnIssue::create($name->name, $name->getStartLine()));
+        $this->issueCollection->add(UntypedReturnIssue::create($name, $line));
     }
 
     private function analyseSpecialMagicMethods(Node\Stmt\ClassMethod $classMethod, ?DocBlock $docBlock): void
     {
-        $name = $classMethod->name;
-        switch ($name->name) {
+        $name = $classMethod->name->name;
+        $line = $classMethod->name->getStartLine();
+        switch ($name) {
             case '__construct':
             case '__invoke':
-                $this->analyseParams($classMethod->getParams(), $name, $docBlock);
+                $this->analyseParams($classMethod->getParams(), $name, $line, $docBlock);
                 break;
             case '__call':
             case '__callStatic':
-                // string $name, array $arguments. ANALYSE
-                // mixed return type. ANALYSE
                 $params = $classMethod->getParams();
                 $firstParam = array_shift($params);
                 if (null === $firstParam->type) {
-                    $this->issueCollection->add(UntypedKnownArgumentIssue::create($name->name, $name->getStartLine(), $firstParam->var->name, 'string'));
+                    $this->issueCollection->add(UntypedKnownArgumentIssue::create($name, $line, $firstParam->var->name, 'string'));
                 }
                 $secondParam = array_shift($params);
                 if (null === $secondParam->type) {
-                    $this->issueCollection->add(UntypedKnownArgumentIssue::create($name->name, $name->getStartLine(), $secondParam->var->name, 'array'));
+                    $this->issueCollection->add(UntypedKnownArgumentIssue::create($name, $line, $secondParam->var->name, 'array'));
                 }
-                $this->analyseReturn($classMethod->getReturnType(), $name, $docBlock);
+                $this->analyseReturn($classMethod->getReturnType(), $name, $line, $docBlock);
                 break;
             case '__get':
                 $params = $classMethod->getParams();
                 if (null === $params[0]->type) {
-                    $this->issueCollection->add(UntypedKnownArgumentIssue::create($name->name, $name->getStartLine(), $params[0]->var->name, 'string'));
+                    $this->issueCollection->add(UntypedKnownArgumentIssue::create($name, $line, $params[0]->var->name, 'string'));
                 }
-                $this->analyseReturn($classMethod->getReturnType(), $name, $docBlock);
+                $this->analyseReturn($classMethod->getReturnType(), $name, $line, $docBlock);
                 break;
             case '__set':
                 $params = $classMethod->getParams();
                 $firstParam = array_shift($params);
                 if (null === $firstParam->type) {
-                    $this->issueCollection->add(UntypedKnownArgumentIssue::create($name->name, $name->getStartLine(), $firstParam->var->name, 'string'));
+                    $this->issueCollection->add(UntypedKnownArgumentIssue::create($name, $line, $firstParam->var->name, 'string'));
                 }
-                $this->analyseParams($params, $name, $docBlock);
-                $this->analyseReturn($classMethod->getReturnType(), $name, $docBlock);
+                $this->analyseParams($params, $name, $line, $docBlock);
+                $this->analyseReturn($classMethod->getReturnType(), $name, $line, $docBlock);
                 break;
             case '__unset':
                 $params = $classMethod->getParams();
                 $firstParam = array_shift($params);
                 if (null === $firstParam->type) {
-                    $this->issueCollection->add(UntypedKnownArgumentIssue::create($name->name, $name->getStartLine(), $firstParam->var->name, 'string'));
+                    $this->issueCollection->add(UntypedKnownArgumentIssue::create($name, $line, $firstParam->var->name, 'string'));
                 }
                 $return = $classMethod->getReturnType();
                 if (null === $return) {
-                    $this->issueCollection->add(UntypedKnownReturnIssue::create($name->name, $name->getStartLine(), 'void'));
+                    $this->issueCollection->add(UntypedKnownReturnIssue::create($name, $line, 'void'));
                 }
                 break;
             case '__sleep':
             case '__debugInfo':
                 $return = $classMethod->getReturnType();
                 if (null === $return) {
-                    $this->issueCollection->add(UntypedKnownReturnIssue::create($name->name, $name->getStartLine(), 'array'));
+                    $this->issueCollection->add(UntypedKnownReturnIssue::create($name, $line, 'array'));
                 }
                 break;
             case '__wakeup':
                 $return = $classMethod->getReturnType();
                 if (null === $return) {
-                    $this->issueCollection->add(UntypedKnownReturnIssue::create($name->name, $name->getStartLine(), 'void'));
+                    $this->issueCollection->add(UntypedKnownReturnIssue::create($name, $line, 'void'));
                 }
                 break;
             case '__toString':
                 $return = $classMethod->getReturnType();
                 if (null === $return) {
-                    $this->issueCollection->add(UntypedKnownReturnIssue::create($name->name, $name->getStartLine(), 'string'));
+                    $this->issueCollection->add(UntypedKnownReturnIssue::create($name, $line, 'string'));
                 }
                 break;
             case '__isset':
                 $params = $classMethod->getParams();
                 if (null === $params[0]->type) {
-                    $this->issueCollection->add(UntypedKnownArgumentIssue::create($name->name, $name->getStartLine(), $params[0]->var->name, 'string'));
+                    $this->issueCollection->add(UntypedKnownArgumentIssue::create($name, $line, $params[0]->var->name, 'string'));
                 }
                 $return = $classMethod->getReturnType();
                 if (null === $return) {
-                    $this->issueCollection->add(UntypedKnownReturnIssue::create($name->name, $name->getStartLine(), 'bool'));
+                    $this->issueCollection->add(UntypedKnownReturnIssue::create($name, $line, 'bool'));
                 }
                 break;
             case '__set_state':
                 $params = $classMethod->getParams();
                 if (null === $params[0]->type) {
-                    $this->issueCollection->add(UntypedKnownArgumentIssue::create($name->name, $name->getStartLine(), $params[0]->var->name, 'array'));
+                    $this->issueCollection->add(UntypedKnownArgumentIssue::create($name, $line, $params[0]->var->name, 'array'));
                 }
                 break;
             case '__destruct':

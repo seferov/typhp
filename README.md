@@ -71,7 +71,7 @@ Example output
 
 ## Todo
 
-- [ ] Analyse closures
+- [x] Analyse closures
 
 - [ ] Check by PHP version. For example, don't suppress `@param object` for >= PHP 7.2
 

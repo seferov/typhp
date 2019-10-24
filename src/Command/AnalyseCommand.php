@@ -27,6 +27,7 @@ class AnalyseCommand extends Command
     protected function configure(): void
     {
         $this
+            ->setAliases(['analyze'])
             ->addArgument('path', InputArgument::OPTIONAL, 'Path to analyse. Ignores config file if provided.')
             ->addOption('config', 'c', InputOption::VALUE_OPTIONAL, 'config file', getcwd().'/.typhp.yml')
             ->addOption('format', null, InputOption::VALUE_REQUIRED, 'format can be either table or compact', 'table')

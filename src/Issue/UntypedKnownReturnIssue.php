@@ -21,7 +21,7 @@ class UntypedKnownReturnIssue extends AbstractIssue
 
     public function getIssueCompact(): string
     {
-        return implode(';', [$this->getLine(), $this->getName(), 'untyped-known-return']);
+        return implode(';', [$this->line, $this->name, 'untyped-known-return']);
     }
 
     public function getIssue(): string
