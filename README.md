@@ -67,7 +67,7 @@ just by `vendor/bin/typhp`
 
 Example output
 
-<img src="example.png" />
+![Example](./docs/example.svg)
 
 ## Todo
 
