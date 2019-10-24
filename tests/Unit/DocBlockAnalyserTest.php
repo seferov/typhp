@@ -7,14 +7,8 @@ use phpDocumentor\Reflection\DocBlockFactory;
 use PHPUnit\Framework\TestCase;
 use Seferov\Typhp\DocBlockAnalyser;
 
-/**
- * @coversDefaultClass \Seferov\Typhp\DocBlockAnalyser
- */
 class DocBlockAnalyserTest extends TestCase
 {
-    /**
-     * @covers ::isParamSuppressedByDocBlock
-     */
     public function testParamSuppressed(): void
     {
         $docComment = '
@@ -33,7 +27,6 @@ class DocBlockAnalyserTest extends TestCase
     }
 
     /**
-     * @covers ::isSuppressedByInheritDoc
      * @dataProvider InheritParamSuppressedData
      */
     public function testInheritParamSuppressed(string $docComment): void
@@ -67,19 +60,12 @@ class DocBlockAnalyserTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::isSuppressedByInheritDoc
-     */
     public function testInheritParamNotSuppressed(): void
     {
         $docBlockAnalyser = new DocBlockAnalyser();
         $this->assertFalse($docBlockAnalyser->isSuppressedByInheritDoc($this->getDocBlock('/** @inheritDoc */')));
     }
 
-
-    /**
-     * @covers ::isParamSuppressedByDocBlock
-     */
     public function testParamNotSuppressed(): void
     {
         $docComment = '
@@ -100,9 +86,6 @@ class DocBlockAnalyserTest extends TestCase
         $this->assertFalse($docBlockAnalyser->isParamSuppressedByDocBlock('variableDoesNotExistInDoc', $docBlock));
     }
 
-    /**
-     * @covers ::isReturnSuppressedByDocBlock
-     */
     public function testReturnSuppressed(): void
     {
         $docBlockAnalyser = new DocBlockAnalyser();
@@ -112,9 +95,6 @@ class DocBlockAnalyserTest extends TestCase
         $this->assertTrue($docBlockAnalyser->isReturnSuppressedByDocBlock($this->getDocBlock('/** @return bool|int */')));
     }
 
-    /**
-     * @covers ::isReturnSuppressedByDocBlock
-     */
     public function testReturnNotSuppressed(): void
     {
         $docBlockAnalyser = new DocBlockAnalyser();

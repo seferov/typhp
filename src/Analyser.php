@@ -19,10 +19,6 @@ class Analyser
      */
     private $code;
     /**
-     * @var string
-     */
-    private $fileName;
-    /**
      * @var IssueCollection
      */
     private $issueCollection;
@@ -35,10 +31,9 @@ class Analyser
      */
     private $docBlockAnalyser;
 
-    public function __construct(string $fileName, string $code)
+    public function __construct(string $code)
     {
         $this->code = $code;
-        $this->fileName = $fileName;
         $this->issueCollection = new IssueCollection();
         $this->docBlockFactory  = DocBlockFactory::createInstance();
         $this->docBlockAnalyser  = new DocBlockAnalyser();

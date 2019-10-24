@@ -55,7 +55,7 @@ class AnalyseCommand extends Command
         }
 
         foreach ($files as $file) {
-            $analyser = new Analyser($file->getPathname(), $file->getContents());
+            $analyser = new Analyser($file->getContents());
             try {
                 $issueCollection = $analyser->analyse();
             } catch (Error $e) {
