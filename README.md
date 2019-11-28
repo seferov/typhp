@@ -32,7 +32,7 @@ phar distribution. Thus you won't have possible dependency conflict.
 Direct download from the [latest Github release](https://github.com/seferov/typhp/releases/latest)
 
 ```bash
-wget https://github.com/seferov/typhp/releases/download/v0.1.2/typhp.phar -O typhp
+wget https://github.com/seferov/typhp/releases/download/v0.2.0/typhp.phar -O typhp
 chmod +x typhp
 ```
 
