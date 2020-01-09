@@ -107,6 +107,27 @@ class DocBlockAnalyserTest extends TestCase
         $this->assertFalse($docBlockAnalyser->isReturnSuppressedByDocBlock($this->getDocBlock('/** @param int $foo */')));
     }
 
+    public function testVarSuppressed(): void
+    {
+        $docBlockAnalyser = new DocBlockAnalyser();
+
+        $this->assertTrue($docBlockAnalyser->isVarSuppressedByDocBlock($this->getDocBlock('/** @var mixed */')));
+        $this->assertTrue($docBlockAnalyser->isVarSuppressedByDocBlock($this->getDocBlock('/** @var object */')));
+        $this->assertTrue($docBlockAnalyser->isVarSuppressedByDocBlock($this->getDocBlock('/** @var bool|int */')));
+    }
+
+    public function testVarNotSuppressed(): void
+    {
+        $docBlockAnalyser = new DocBlockAnalyser();
+
+        $this->assertFalse($docBlockAnalyser->isVarSuppressedByDocBlock($this->getDocBlock('/** @var string */')));
+        $this->assertFalse($docBlockAnalyser->isVarSuppressedByDocBlock($this->getDocBlock('/** @var int */')));
+        $this->assertFalse($docBlockAnalyser->isVarSuppressedByDocBlock($this->getDocBlock('/** @var DocBlock */')));
+        $this->assertFalse($docBlockAnalyser->isVarSuppressedByDocBlock($this->getDocBlock('/** @var array|null */')));
+        $this->assertFalse($docBlockAnalyser->isVarSuppressedByDocBlock($this->getDocBlock('/** @var int|null */')));
+        $this->assertFalse($docBlockAnalyser->isVarSuppressedByDocBlock($this->getDocBlock('/** @var int $foo */')));
+    }
+
     private function getDocBlock(string $docComment): DocBlock
     {
         return (DocBlockFactory::createInstance())->create($docComment);

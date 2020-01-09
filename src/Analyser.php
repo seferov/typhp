@@ -10,6 +10,7 @@ use PhpParser\ParserFactory;
 use Seferov\Typhp\Issue\UntypedArgumentIssue;
 use Seferov\Typhp\Issue\UntypedKnownArgumentIssue;
 use Seferov\Typhp\Issue\UntypedKnownReturnIssue;
+use Seferov\Typhp\Issue\UntypedPropertyIssue;
 use Seferov\Typhp\Issue\UntypedReturnIssue;
 
 class Analyser
@@ -65,12 +66,44 @@ class Analyser
             }
         } elseif ($node instanceof Node\Expr\Assign) {
             $this->analyseNode($node->expr);
+        } elseif ($node instanceof Node\Stmt\Property) {
+            foreach ($node->props as $property) {
+                $this->analyseProperty($property);
+            }
         }
 
         if (isset($node->stmts)) {
             foreach ($node->stmts as $subNode) {
                 $this->analyseNode($subNode);
             }
+        }
+    }
+
+    private function analyseProperty(Node\Stmt\PropertyProperty $property): void
+    {
+        $name = $property->name;
+        $line = $property->getStartLine();
+        $type = $property->getType();
+
+        $docBlock = null;
+        if ($property->getDocComment()) {
+            try {
+                $docBlock = $this->docBlockFactory->create($property->getDocComment()->getText());
+            } catch (\Exception $e) {
+                // Invalid phpdoc case; continue analyzing without phpdoc info.
+            }
+        }
+
+        if ($docBlock && $this->docBlockAnalyser->isSuppressedByInheritDoc($docBlock)) {
+            return;
+        }
+
+        if ($docBlock && $this->docBlockAnalyser->isVarSuppressedByDocBlock($docBlock)) {
+            return;
+        }
+
+        if (strlen($type) >= 0 || $type === null) {
+            $this->issueCollection->add(UntypedPropertyIssue::create($name, $line));
         }
     }
 
@@ -115,12 +148,12 @@ class Analyser
     private function analyseParams(array $params, string $name, int $line, ?DocBlock $docBlock): void
     {
         foreach ($params as $param) {
-            if (null !== $param->type) {
+            if ($docBlock && $this->docBlockAnalyser->isParamSuppressedByDocBlock($param->var->name, $docBlock)) {
                 continue;
             }
 
-            if ($docBlock && $this->docBlockAnalyser->isParamSuppressedByDocBlock($param->var->name, $docBlock)) {
-                continue;
+            if (strlen($param->getType()) >= 0 || $param->getType() === null) {
+                $this->issueCollection->add(UntypedReturnIssue::create($name, $line));
             }
 
             $this->issueCollection->add(UntypedArgumentIssue::create($name, $line, $param->var->name));
@@ -132,15 +165,13 @@ class Analyser
      */
     private function analyseReturn($returnType, string $name, int $line, ?DocBlock $docBlock): void
     {
-        if (null !== $returnType) {
-            return;
-        }
-
         if ($docBlock && $this->docBlockAnalyser->isReturnSuppressedByDocBlock($docBlock)) {
             return;
         }
 
-        $this->issueCollection->add(UntypedReturnIssue::create($name, $line));
+        if (strlen($returnType) >= 0 || $returnType === null) {
+            $this->issueCollection->add(UntypedReturnIssue::create($name, $line));
+        }
     }
 
     private function analyseSpecialMagicMethods(Node\Stmt\ClassMethod $classMethod, ?DocBlock $docBlock): void

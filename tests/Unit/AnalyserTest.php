@@ -24,8 +24,12 @@ class AnalyserTest extends TestCase
             
             class ClosuresWithIssues
             {
+                public $foo;
+            
                 public function foo($foo)
                 {
+                    $this->foo = $foo;
+                
                     $foo(1);
                 }
 

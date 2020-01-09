@@ -5,6 +5,7 @@ namespace Seferov\Typhp;
 use phpDocumentor\Reflection\DocBlock;
 use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlock\Tags\Return_;
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use phpDocumentor\Reflection\Type;
 use phpDocumentor\Reflection\Types\Compound;
 use phpDocumentor\Reflection\Types\Mixed_;
@@ -26,6 +27,19 @@ class DocBlockAnalyser
         }
 
         return false;
+    }
+
+    public function isVarSuppressedByDocBlock(DocBlock $docBlock): bool
+    {
+        $varTags = $docBlock->getTagsByName('var');
+        if (empty($varTags)) {
+            return false;
+        }
+
+        /** @var Var_ $varTag */
+        $varTag = $varTags[0];
+
+        return $this->isTypeSuppressed($varTag->getType());
     }
 
     public function isParamSuppressedByDocBlock(string $paramName, DocBlock $docBlock): bool
