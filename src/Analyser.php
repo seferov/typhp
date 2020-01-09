@@ -102,7 +102,7 @@ class Analyser
             return;
         }
 
-        if (strlen($type) >= 0 || $type === null) {
+        if (strlen($type) == 0 || $type === null || empty($type)) {
             $this->issueCollection->add(UntypedPropertyIssue::create($name, $line));
         }
     }
@@ -152,11 +152,9 @@ class Analyser
                 continue;
             }
 
-            if (strlen($param->getType()) >= 0 || $param->getType() === null) {
-                $this->issueCollection->add(UntypedReturnIssue::create($name, $line));
+            if ($param->type === null || empty($param->type)) {
+                $this->issueCollection->add(UntypedArgumentIssue::create($name, $line, $param->var->name));
             }
-
-            $this->issueCollection->add(UntypedArgumentIssue::create($name, $line, $param->var->name));
         }
     }
 
@@ -169,7 +167,7 @@ class Analyser
             return;
         }
 
-        if (strlen($returnType) >= 0 || $returnType === null) {
+        if (strlen($returnType) == 0 || $returnType === null || empty($returnType)) {
             $this->issueCollection->add(UntypedReturnIssue::create($name, $line));
         }
     }
