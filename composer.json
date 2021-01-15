@@ -13,7 +13,7 @@
         "symfony/yaml": "^4.3",
         "symfony/stopwatch": "^4.3",
         "symfony/process": "^4.3",
-        "jean85/pretty-package-versions": "^1.2"
+        "jean85/pretty-package-versions": "^1.2 || ^2.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^7.5",
